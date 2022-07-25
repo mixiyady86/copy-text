@@ -42,7 +42,8 @@ const app={
         {
             name:'Nơi Này Có Anh',
             singer:'Sơn Tùng M-TP',
-            path:'https://data37.chiasenhac.com/downloads/1897/1/1896719-828a80eb/320/Noi%20Nay%20Co%20Anh%20-%20Son%20Tung%20M-TP.mp3',
+            path:'./assets/music/nnca-stmtp.mp3',
+            // path:'https://data37.chiasenhac.com/downloads/1897/1/1896719-828a80eb/320/Noi%20Nay%20Co%20Anh%20-%20Son%20Tung%20M-TP.mp3',
             image:'./assets/img/nnca-stmtp.jpg'
         },
         {
@@ -66,7 +67,8 @@ const app={
         {
             name:'3107 3 - W/n',
             singer:'W/n ft. Nâu, Duongg, Titie',
-            path:'https://data.chiasenhac.com/down2/2185/1/2184581-d20301b6/320/3107-3%20-%20W_n_%20Nau_%20Duongg_%20Titie.mp3',
+            path:'./assets/music/3107-3.mp3',
+            // path:'https://data.chiasenhac.com/down2/2185/1/2184581-d20301b6/320/3107-3%20-%20W_n_%20Nau_%20Duongg_%20Titie.mp3',
             image:'./assets/img/3107-3.jpg'
         },
         {
