@@ -1,67 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music player</title>
-    <link rel="shortcut icon" href="#">
-    <link rel="icon" href="assets/img/logo.png" type="image/pngx-icon" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w==" crossorigin="anonymous" />
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./assets/css/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        textarea {
+            width: 90%;
+            max-width: 500px;
+            height: 100px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: vertical;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        button.copy-button {
+            background-color: #0A5EB0;
+            padding: 16px 10px;
+        }
+
+        button.copy-button:hover {
+            background-color: #0056b3;
+        }
+
+        button.copy-button.copied {
+            background-color: rgba(0, 123, 255, 0.3);
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 50%;
+        }
+
+        .generate {
+            width: 100%;
+        }
+
+        /* responsive for mobile under 500px screen width */
+        @media (max-width: 500px) {
+            .container {
+                width: 100%;
+            }
+
+            button {
+                width: 100%;
+                margin: 8px 0;
+            }
+
+            button.copy-button {
+                width: 100%;
+            }
+        }
+    </style>
+    <title>Text to Clipboard</title>
 </head>
+
 <body>
-    <div class="player">
-        <!-- DashBoard -->
-        <div class="dashboard">
-            <!-- Header -->
-            <header>
-                <h4>Now Playing: </h4>
-                <h2>Hãy Trao Cho Anh</h2>
-            </header>
-            <!-- CD -->
-            <div class="cd">
-                <div class="cd-thumb" ></div>
-            </div>
-            <!-- control -->
-            <div class="control">
-                <div class="btn btn-repeat">
-                    <i class="fas fa-redo"></i>
-                </div>
-                <div class="btn btn-prev">
-                    <i class="fas fa-step-backward"></i>
-                </div>
-                <div class="btn btn-toggle-play">
-                    <i class="fas fa-pause icon-pause"></i>
-                    <i class="fas fa-play icon-play"></i>
-                </div>
-                <div class="btn btn-next">
-                    <i class="fas fa-step-forward"></i>
-                </div>
-                <div class="btn btn-random">
-                    <i class="fas fa-random"></i>
-                </div>
-            </div>
-            <div class="duration">
-                <div class="time-left"></div>
-                <div class="time-level">
-                    <input id="progress" class="progress" type="range" value="0" step="1" min="0" max="100">
-                </div>
-                <div class="time-right">00:00</div>
-            </div>
-            <!-- <div class="volume">
-                <input id="volume" type="range" value="0" step="1" min="0" max="100">
-            </div> -->
-            <audio id="audio" src=""></audio>
+    <h1>Nhập nội dung theo từng dòng sau đó bấm nút <b>"Tạo"</b></h1>
+    <div class="container">
+        <div class="generate">
+            <textarea id="inputText" placeholder="Paste your text here..."></textarea>
+            <button onclick="generateButtons()">Tạo</button>
         </div>
-        <!-- Play lists -->
-        <div class="playlist">
-            
-        </div>
+        <div id="buttonContainer" class="button-container"></div>
     </div>
-    <script src="./main.js"></script>
-    <script src="./test.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const lines = JSON.parse(localStorage.getItem('lines'));
+            if (lines) {
+                document.getElementById('inputText').value = lines.join('\n');
+                generateButtons();
+            }
+        });
+
+        function generateButtons() {
+            const container = document.getElementById('buttonContainer');
+            container.innerHTML = '';
+            const lines = document.getElementById('inputText').value.split('\n');
+
+            const text = document.createElement('p');
+            text.textContent = 'Click vào nút để tự copy';
+            container.appendChild(text);
+
+            lines.forEach((line, index) => {
+                if (line.trim()) {
+                    const button = document.createElement('button');
+                    button.textContent = `${line}`;
+                    button.classList.add('copy-button');
+                    button.onclick = () => copyToClipboard(line);
+                    container.appendChild(button);
+                }
+            });
+
+            localStorage.setItem('lines', JSON.stringify(lines));
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                generateToast(`"${text}"" copied to clipboard`);
+            }).catch(err => {
+                alert('Failed to copy text: ', err);
+            });
+
+            navigator.clipboard.readText().then(clipText => {
+                if (clipText === text) {
+                    buttons = document.querySelectorAll('.copy-button');
+                    buttons.forEach(button => {
+                        if (button.textContent === text) {
+                            button.classList.add('copied');
+                            button.textContent = `${text} (đã copy)`;
+                        } else {
+                            button.classList.remove('copied');
+                            button.textContent = button.textContent.replace(' (đã copy)', '');
+                        }
+                    });
+                }
+            });
+        }
+
+        function generateToast(message) {
+            if (document.getElementById('toast')) {
+                document.getElementById('toast').remove();
+            }
+            const toast = document.createElement('div');
+            toast.id = 'toast';
+            toast.textContent = message;
+            toast.style.backgroundColor = 'rgba(0, 0, 0, 0.6)';
+            toast.style.color = 'white';
+            toast.style.padding = '10px';
+            toast.style.borderRadius = '5px';
+            toast.style.position = 'fixed';
+            toast.style.top = '10px';
+            toast.style.left = '50%';
+            toast.style.transform = 'translateX(-50%)';
+            toast.style.zIndex = '9999';
+            toast.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
+            toast.onclick = () => toast.remove();
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 2000);
+        }
+    </script>
 </body>
+
 </html>
