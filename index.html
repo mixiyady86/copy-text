@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.png" type="image/png">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,6 +13,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            overflow-y: scroll;
+            overflow-x: hidden;
         }
 
         textarea {
@@ -45,6 +48,8 @@
         button.copy-button {
             background-color: #0A5EB0;
             padding: 16px 10px;
+            font-size: 16px;
+            text-overflow: ellipsis;
         }
 
         button.copy-button:hover {
@@ -99,29 +104,46 @@
     <h1>Nhập nội dung theo từng dòng sau đó bấm nút <b>"Tạo"</b></h1>
     <div class="container">
         <div class="generate">
-            <textarea id="inputText" placeholder="Paste your text here..."></textarea>
+            <textarea id="inputText" placeholder="Nhập nội dung theo từng dòng vào đây..."></textarea>
             <button onclick="generateButtons()">Tạo</button>
         </div>
         <div id="buttonContainer" class="button-container"></div>
     </div>
 
     <script>
+
+
         document.addEventListener('DOMContentLoaded', () => {
             const lines = JSON.parse(localStorage.getItem('lines'));
             if (lines) {
-                document.getElementById('inputText').value = lines.join('\n');
+                document.getElementById('inputText').value = lines.join('\n').trim();
                 generateButtons();
             }
         });
 
         function generateButtons() {
+            const textInputEl = document.getElementById('inputText');
+
+            const textValue = textInputEl.value.trim();
+
             const container = document.getElementById('buttonContainer');
             container.innerHTML = '';
-            const lines = document.getElementById('inputText').value.split('\n');
 
-            const text = document.createElement('p');
-            text.textContent = 'Click vào nút để tự copy';
-            container.appendChild(text);
+            if (!textValue) {
+                localStorage.removeItem('lines');
+                generateToast('Vui lòng nhập nội dung trước khi tạo');
+                return
+            }
+
+            const lines = textValue.split('\n').filter(line => line.trim());
+
+            if (lines.length > 0) {
+                const text = document.createElement('p');
+                text.id = 'text';
+                text.textContent = 'Click vào nút bên dưới để tự copy';
+                container.appendChild(text);
+            }
+
 
             lines.forEach((line, index) => {
                 if (line.trim()) {
@@ -133,12 +155,13 @@
                 }
             });
 
+            textInputEl.value = lines.join('\n');
             localStorage.setItem('lines', JSON.stringify(lines));
         }
 
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
-                generateToast(`"${text}"" copied to clipboard`);
+                generateToast(`"${text}" copied to clipboard`);
             }).catch(err => {
                 alert('Failed to copy text: ', err);
             });
@@ -174,7 +197,9 @@
             toast.style.top = '10px';
             toast.style.left = '50%';
             toast.style.transform = 'translateX(-50%)';
+            toast.style.transition = 'all 0.5s';
             toast.style.zIndex = '9999';
+            toast.style.cursor = 'pointer';
             toast.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
             toast.onclick = () => toast.remove();
             document.body.appendChild(toast);
